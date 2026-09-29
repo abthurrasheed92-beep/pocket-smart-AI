@@ -1,0 +1,720 @@
+{% extends "base.html" %}
+
+{% block title %}
+Jewelry Planner - PocketSmart AI
+{% endblock %}
+
+{% block content %}
+
+<section class="planner-section"><div class="planner-container">
+
+    <div class="planner-header">
+
+        <span class="badge">
+            💎 Jewelry Planner
+        </span>
+
+        <h1>
+            Find Your Perfect Jewelry
+        </h1>
+
+        <p>
+            Get jewelry recommendations based on your
+            occasion, style, outfit and budget.
+        </p>
+
+    </div>
+
+
+    <div class="planner-layout">
+
+        <div class="planner-form-card">
+
+            <h2>
+                Jewelry Preferences
+            </h2>
+
+            <p class="form-description">
+                You can optionally upload an outfit image
+                for AI-assisted recommendations.
+            </p>
+
+
+            <form
+                id="jewelry-form"
+                enctype="multipart/form-data"
+            >
+
+
+                <div class="form-group">
+
+                    <label for="jewelry-budget">
+                        Budget (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="jewelry-budget"
+                        name="budget"
+                        min="1"
+                        placeholder="Example: 15000"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="occasion">
+                        Occasion
+                    </label>
+
+                    <select
+                        id="occasion"
+                        name="occasion"
+                        required
+                    >
+
+                        <option value="">
+                            Select occasion
+                        </option>
+
+                        <option value="Wedding">
+                            Wedding
+                        </option>
+
+                        <option value="Engagement">
+                            Engagement
+                        </option>
+
+                        <option value="Party">
+                            Party
+                        </option>
+
+                        <option value="Festival">
+                            Festival
+                        </option>
+
+                        <option value="Office">
+                            Office
+                        </option>
+
+                        <option value="Casual">
+                            Casual
+                        </option>
+
+                        <option value="Traditional Function">
+                            Traditional Function
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="jewelry-style">
+                        Jewelry Style
+                    </label>
+
+                    <select
+                        id="jewelry-style"
+                        name="style"
+                    >
+
+                        <option value="Elegant">
+                            Elegant
+                        </option>
+
+                        <option value="Traditional">
+                            Traditional
+                        </option>
+
+                        <option value="Modern">
+                            Modern
+                        </option>
+
+                        <option value="Minimalist">
+                            Minimalist
+                        </option>
+
+                        <option value="Statement">
+                            Statement
+                        </option>
+
+                        <option value="Bridal">
+                            Bridal
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="outfit-color">
+                        Outfit Color
+                    </label>
+
+                    <input
+                        type="text"
+                        id="outfit-color"
+                        name="outfit_color"
+                        placeholder="Example: Red, Blue, Black, Green"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="outfit-image">
+                        Outfit Image
+                        <span class="optional">
+                            (Optional)
+                        </span>
+                    </label>
+
+                    <input
+                        type="file"
+                        id="outfit-image"
+                        name="outfit_image"
+                        accept="image/jpeg,image/png,image/webp"
+                    >
+
+                    <small class="field-help">
+                        JPG, PNG or WEBP. Maximum 5 MB.
+                    </small>
+
+                </div>
+
+
+                <div
+                    id="image-preview"
+                    class="image-preview hidden"
+                >
+
+                    <img
+                        id="preview-image"
+                        src=""
+                        alt="Outfit preview"
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="jewelry-notes">
+                        Additional Requirements
+                    </label>
+
+                    <textarea
+                        id="jewelry-notes"
+                        name="notes"
+                        rows="4"
+                        placeholder="Tell us about your preferred jewelry, material, color or other requirements..."
+                    ></textarea>
+
+                </div>
+
+
+                <div
+                    id="jewelry-message"
+                    class="message hidden"
+                ></div>
+
+
+                <button
+                    type="submit"
+                    id="jewelry-submit"
+                    class="btn btn-primary btn-full"
+                >
+                    💎 Generate Jewelry Plan
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <div
+            id="jewelry-result"
+            class="result-card"
+        >
+
+            <div class="result-empty">
+
+                <div class="result-empty-icon">
+                    💎
+                </div>
+
+                <h2>
+                    Your Jewelry Plan
+                </h2>
+
+                <p>
+                    Enter your preferences and generate
+                    your personalized recommendations.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</section><script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const form =
+            document.getElementById(
+                "jewelry-form"
+            );
+
+        const imageInput =
+            document.getElementById(
+                "outfit-image"
+            );
+
+        const preview =
+            document.getElementById(
+                "image-preview"
+            );
+
+        const previewImage =
+            document.getElementById(
+                "preview-image"
+            );
+
+
+        imageInput.addEventListener(
+            "change",
+            function () {
+
+                const file =
+                    this.files[0];
+
+                if (!file) {
+
+                    preview.classList.add(
+                        "hidden"
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    file.size >
+                    5 * 1024 * 1024
+                ) {
+
+                    alert(
+                        "Image must be 5 MB or smaller."
+                    );
+
+                    this.value = "";
+
+                    preview.classList.add(
+                        "hidden"
+                    );
+
+                    return;
+
+                }
+
+
+                const reader =
+                    new FileReader();
+
+
+                reader.onload =
+                    function (event) {
+
+                        previewImage.src =
+                            event.target.result;
+
+                        preview.classList.remove(
+                            "hidden"
+                        );
+
+                    };
+
+
+                reader.readAsDataURL(
+                    file
+                );
+
+            }
+        );
+
+
+        form.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+
+                const budget =
+                    document.getElementById(
+                        "jewelry-budget"
+                    ).value;
+
+                const occasion =
+                    document.getElementById(
+                        "occasion"
+                    ).value;
+
+                const style =
+                    document.getElementById(
+                        "jewelry-style"
+                    ).value;
+
+                const outfitColor =
+                    document.getElementById(
+                        "outfit-color"
+                    ).value;
+
+                const notes =
+                    document.getElementById(
+                        "jewelry-notes"
+                    ).value;
+
+
+                const message =
+                    document.getElementById(
+                        "jewelry-message"
+                    );
+
+                const result =
+                    document.getElementById(
+                        "jewelry-result"
+                    );
+
+                const button =
+                    document.getElementById(
+                        "jewelry-submit"
+                    );
+
+
+                if (
+                    !budget ||
+                    Number(budget) <= 0 ||
+                    !occasion
+                ) {
+
+                    showMessage(
+                        message,
+                        "Please enter a valid budget and select an occasion.",
+                        "error"
+                    );
+
+                    return;
+
+                }
+
+
+                const formData =
+                    new FormData();
+
+
+                formData.append(
+                    "budget",
+                    budget
+                );
+
+                formData.append(
+                    "occasion",
+                    occasion
+                );
+
+                formData.append(
+                    "style",
+                    style
+                );
+
+                formData.append(
+                    "outfit_color",
+                    outfitColor
+                );
+
+                formData.append(
+                    "notes",
+                    notes
+                );
+
+
+                if (
+                    imageInput.files.length > 0
+                ) {
+
+                    formData.append(
+                        "outfit_image",
+                        imageInput.files[0]
+                    );
+
+                }
+
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Analyzing...";
+
+
+                result.innerHTML = `
+                    <div class="loading-box">
+                        <div class="spinner"></div>
+                        <h3>Creating your jewelry plan...</h3>
+                        <p>PocketSmart AI is analyzing your preferences.</p>
+                    </div>
+                `;
+
+
+                try {
+
+                    const data =
+                        await apiRequest(
+                            "/generate-jewelry",
+                            {
+
+                                method: "POST",
+
+                                body:
+                                    formData
+
+                            }
+                        );
+
+
+                    renderJewelryResult(
+                        result,
+                        data
+                    );
+
+
+                    showMessage(
+                        message,
+                        "Your jewelry recommendations are ready!",
+                        "success"
+                    );
+
+
+                } catch (error) {
+
+                    showMessage(
+                        message,
+                        error.message,
+                        "error"
+                    );
+
+
+                    result.innerHTML = `
+                        <div class="result-empty">
+                            <div class="result-empty-icon">⚠️</div>
+                            <h2>Unable to generate plan</h2>
+                            <p>${escapeHtml(error.message)}</p>
+                        </div>
+                    `;
+
+                } finally {
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "💎 Generate Jewelry Plan";
+
+                }
+
+            }
+        );
+
+    }
+);
+
+
+function renderJewelryResult(
+    container,
+    data
+) {
+
+    const result =
+        data.result || data;
+
+
+    let html = `
+
+        <div class="result-header">
+
+            <div>
+
+                <span class="result-label">
+                    AI Recommendation
+                </span>
+
+                <h2>
+                    Your Jewelry Plan
+                </h2>
+
+            </div>
+
+            <span class="source-badge">
+                ${escapeHtml(
+                    result.source || "AI"
+                )}
+            </span>
+
+        </div>
+
+
+        <div class="summary-box">
+
+            <p>
+                ${escapeHtml(
+                    result.summary ||
+                    "Your jewelry plan is ready."
+                )}
+            </p>
+
+        </div>
+
+
+        <div class="budget-summary">
+
+            <div>
+
+                <span>
+                    Budget
+                </span>
+
+                <strong>
+                    ${formatCurrency(
+                        result.budget
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Estimated Total
+                </span>
+
+                <strong>
+                    ${formatCurrency(
+                        result.budget_used
+                    )}
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <h3 class="recommendation-title">
+            Jewelry Recommendations
+        </h3>
+
+
+        <div class="recommendation-list">
+    `;
+
+
+    (
+        result.recommendations || []
+    ).forEach(
+        function (item) {
+
+            html += `
+
+                <div class="recommendation-item">
+
+                    <div class="recommendation-icon">
+                        💎
+                    </div>
+
+                    <div class="recommendation-content">
+
+                        <span class="recommendation-category">
+                            ${escapeHtml(
+                                item.category
+                            )}
+                        </span>
+
+                        <h4>
+                            ${escapeHtml(
+                                item.name
+                            )}
+                        </h4>
+
+                        <p>
+                            ${escapeHtml(
+                                item.reason
+                            )}
+                        </p>
+
+                    </div>
+
+                    <div class="recommendation-price">
+
+                        <strong>
+                            ${formatCurrency(
+                                item.estimated_price
+                            )}
+                        </strong>
+
+                        <a
+                            href="${item.search_url}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="shop-link"
+                        >
+                            View →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+        </div>
+    `;
+
+
+    container.innerHTML = html;
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+</script>{% endblock %}

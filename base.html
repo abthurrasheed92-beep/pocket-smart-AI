@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        {% block title %}
+        PocketSmart AI
+        {% endblock %}
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='css/style.css') }}"
+    >
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="nav-container">
+
+        <a href="/" class="logo">
+            <span class="logo-icon">💡</span>
+            PocketSmart AI
+        </a>
+
+        <nav class="nav-links">
+
+            <a href="/">Home</a>
+
+            <a href="/dashboard">Dashboard</a>
+
+            <a href="/home-planner">
+                Home Planner
+            </a>
+
+            <a href="/party-planner">
+                Party Planner
+            </a>
+
+            <a href="/jewelry-planner">
+                Jewelry Planner
+            </a>
+
+            <a href="/history">
+                History
+            </a>
+
+        </nav>
+
+        <div class="nav-actions">
+
+            <a
+                href="/login"
+                class="btn btn-outline"
+            >
+                Login
+            </a>
+
+            <a
+                href="/register"
+                class="btn btn-primary"
+            >
+                Register
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<main class="main-content">
+
+    {% block content %}
+
+    {% endblock %}
+
+</main>
+
+
+<footer class="footer">
+
+    <div class="footer-container">
+
+        <div>
+
+            <h3>
+                💡 PocketSmart AI
+            </h3>
+
+            <p>
+                Your Smart Budget & Recommendation Assistant.
+            </p>
+
+        </div>
+
+        <div>
+
+            <p>
+                © 2026 PocketSmart AI
+            </p>
+
+        </div>
+
+    </div>
+
+</footer>
+
+
+<script
+    src="{{ url_for('static', path='js/app.js') }}"
+></script>
+
+{% block scripts %}
+
+{% endblock %}
+
+</body>
+</html>

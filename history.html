@@ -1,0 +1,487 @@
+{% extends "base.html" %}
+
+{% block title %}
+Recommendation History - PocketSmart AI
+{% endblock %}
+
+{% block content %}
+
+<section class="history-section">
+    <div class="history-container">
+
+        <div class="history-header">
+            <div>
+                <span class="badge">📋 History</span>
+
+                <h1>Recommendation History</h1>
+
+                <p>
+                    View the plans and recommendations
+                    you generated previously.
+                </p>
+            </div>
+
+            <a href="/dashboard" class="btn btn-outline">
+                ← Dashboard
+            </a>
+        </div>
+
+        <div id="history-list" class="history-list">
+            <div class="loading-box">
+                <div class="spinner"></div>
+                <h3>Loading history...</h3>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+    loadHistory();
+});
+
+
+async function loadHistory() {
+
+    const container =
+        document.getElementById("history-list");
+
+    try {
+
+        const data =
+            await apiRequest("/api/history");
+
+        if (!Array.isArray(data) || data.length === 0) {
+
+            container.innerHTML = `
+                <div class="history-empty">
+                    <div class="result-empty-icon">📋</div>
+
+                    <h2>No Recommendations Yet</h2>
+
+                    <p>
+                        Generate your first plan to see it here.
+                    </p>
+
+                    <div class="history-empty-buttons">
+
+                        <a href="/home-planner"
+                           class="btn btn-primary">
+                            Home Planner
+                        </a>
+
+                        <a href="/party-planner"
+                           class="btn btn-outline">
+                            Party Planner
+                        </a>
+
+                        <a href="/jewelry-planner"
+                           class="btn btn-outline">
+                            Jewelry Planner
+                        </a>
+
+                    </div>
+                </div>
+            `;
+
+            return;
+        }
+
+
+        container.innerHTML = "";
+
+
+        data.forEach(function (item) {
+
+            const planner =
+                String(item.planner || "").toLowerCase();
+
+            let icon = "🤖";
+            let plannerName = "AI Planner";
+
+            if (planner === "home") {
+                icon = "🏠";
+                plannerName = "Home Interior";
+            }
+
+            if (planner === "party") {
+                icon = "🎉";
+                plannerName = "Party Planner";
+            }
+
+            if (planner === "jewelry") {
+                icon = "💎";
+                plannerName = "Jewelry Planner";
+            }
+
+
+            const result = item.result || {};
+            const input = item.input || {};
+
+            const budget =
+                result.budget || input.budget || 0;
+
+            const estimated =
+                result.budget_used || 0;
+
+            const recommendations =
+                result.recommendations || [];
+
+
+            const card =
+                document.createElement("div");
+
+            card.className = "history-card";
+
+
+            card.innerHTML = `
+
+                <div class="history-card-top">
+
+                    <div class="history-planner">
+
+                        <div class="history-icon">
+                            ${icon}
+                        </div>
+
+                        <div>
+
+                            <span>
+                                ${escapeHtml(plannerName)}
+                            </span>
+
+                            <small>
+                                ${escapeHtml(
+                                    formatDate(item.created_at)
+                                )}
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                    <span class="source-badge">
+                        ${escapeHtml(
+                            result.source || "AI"
+                        )}
+                    </span>
+
+                </div>
+
+
+                <div class="history-summary">
+
+                    <p>
+                        ${escapeHtml(
+                            result.summary ||
+                            "Recommendation plan"
+                        )}
+                    </p>
+
+                </div>
+
+
+                <div class="history-stats">
+
+                    <div>
+                        <span>Budget</span>
+
+                        <strong>
+                            ${formatCurrency(budget)}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Estimated</span>
+
+                        <strong>
+                            ${formatCurrency(estimated)}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Items</span>
+
+                        <strong>
+                            ${recommendations.length}
+                        </strong>
+                    </div>
+
+                </div>
+
+
+                <div class="history-actions">
+
+                    <button
+                        type="button"
+                        class="btn btn-primary details-button"
+                    >
+                        View Details
+                    </button>
+
+                </div>
+            `;
+
+
+            const button =
+                card.querySelector(".details-button");
+
+
+            button.addEventListener(
+                "click",
+                function () {
+                    showHistoryDetails(item);
+                }
+            );
+
+
+            container.appendChild(card);
+
+        });
+
+
+    } catch (error) {
+
+        container.innerHTML = `
+
+            <div class="history-empty">
+
+                <div class="result-empty-icon">
+                    ⚠️
+                </div>
+
+                <h2>
+                    Unable to Load History
+                </h2>
+
+                <p>
+                    ${escapeHtml(
+                        error.message ||
+                        "Unable to load history."
+                    )}
+                </p>
+
+            </div>
+        `;
+    }
+}
+
+
+function showHistoryDetails(item) {
+
+    const result =
+        item.result || {};
+
+    const recommendations =
+        result.recommendations || [];
+
+
+    let recommendationHtml = "";
+
+
+    recommendations.forEach(function (rec) {
+
+        recommendationHtml += `
+
+            <div class="recommendation-item">
+
+                <div class="recommendation-icon">
+                    🤖
+                </div>
+
+                <div class="recommendation-content">
+
+                    <span class="recommendation-category">
+                        ${escapeHtml(
+                            rec.category || ""
+                        )}
+                    </span>
+
+                    <h4>
+                        ${escapeHtml(
+                            rec.name || ""
+                        )}
+                    </h4>
+
+                    <p>
+                        ${escapeHtml(
+                            rec.reason || ""
+                        )}
+                    </p>
+
+                </div>
+
+                <div class="recommendation-price">
+
+                    <strong>
+                        ${formatCurrency(
+                            rec.estimated_price
+                        )}
+                    </strong>
+
+                    ${
+                        rec.search_url
+                        ? `
+                            <a
+                                href="${escapeHtml(
+                                    rec.search_url
+                                )}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="shop-link"
+                            >
+                                View →
+                            </a>
+                        `
+                        : ""
+                    }
+
+                </div>
+
+            </div>
+        `;
+    });
+
+
+    const modal =
+        document.createElement("div");
+
+    modal.className = "modal-overlay";
+
+
+    modal.innerHTML = `
+
+        <div class="history-modal">
+
+            <button
+                type="button"
+                class="modal-close"
+            >
+                ×
+            </button>
+
+
+            <span class="result-label">
+                Recommendation Details
+            </span>
+
+
+            <h2>
+                ${escapeHtml(
+                    result.summary ||
+                    "Your AI Plan"
+                )}
+            </h2>
+
+
+            <div class="budget-summary">
+
+                <div>
+
+                    <span>Budget</span>
+
+                    <strong>
+                        ${formatCurrency(
+                            result.budget
+                        )}
+                    </strong>
+
+                </div>
+
+
+                <div>
+
+                    <span>Estimated Total</span>
+
+                    <strong>
+                        ${formatCurrency(
+                            result.budget_used
+                        )}
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <h3 class="recommendation-title">
+                Recommendations
+            </h3>
+
+
+            <div class="recommendation-list">
+
+                ${
+                    recommendationHtml ||
+                    "<p>No recommendations available.</p>"
+                }
+
+            </div>
+
+        </div>
+    `;
+
+
+    document.body.appendChild(modal);
+
+
+    modal.querySelector(".modal-close")
+        .addEventListener(
+            "click",
+            function () {
+                modal.remove();
+            }
+        );
+
+
+    modal.addEventListener(
+        "click",
+        function (event) {
+
+            if (event.target === modal) {
+                modal.remove();
+            }
+
+        }
+    );
+}
+
+
+function formatDate(dateString) {
+
+    if (!dateString) {
+        return "Unknown date";
+    }
+
+    const date =
+        new Date(dateString);
+
+    if (Number.isNaN(date.getTime())) {
+        return dateString;
+    }
+
+    return date.toLocaleString(
+        "en-IN",
+        {
+            dateStyle: "medium",
+            timeStyle: "short"
+        }
+    );
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+</script>
+
+{% endblock %}

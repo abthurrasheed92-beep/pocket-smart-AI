@@ -1,0 +1,575 @@
+{% extends "base.html" %}
+
+{% block title %}
+Home Interior Planner - PocketSmart AI
+{% endblock %}
+
+{% block content %}
+
+<section class="planner-section">
+<div class="planner-container">
+
+    <div class="planner-header">
+        <span class="badge">🏠 Home Interior</span>
+
+        <h1>Home Interior Planner</h1>
+
+        <p>
+            Create a smart interior plan based on your
+            room, style and available budget.
+        </p>
+    </div>
+
+    <div class="planner-layout">
+
+        <div class="planner-form-card">
+
+            <h2>Tell us about your room</h2>
+
+            <p class="form-description">
+                Enter your requirements and let PocketSmart AI
+                create a budget-friendly plan.
+            </p>
+
+            <form id="home-form">
+
+                <div class="form-group">
+
+                    <label for="home-budget">
+                        Total Budget (₹)
+                    </label>
+
+                    <input
+                        type="number"
+                        id="home-budget"
+                        name="budget"
+                        min="1"
+                        placeholder="Example: 50000"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="room-type">
+                        Room Type
+                    </label>
+
+                    <select
+                        id="room-type"
+                        name="room_type"
+                        required
+                    >
+                        <option value="">
+                            Select room
+                        </option>
+
+                        <option value="Living Room">
+                            Living Room
+                        </option>
+
+                        <option value="Bedroom">
+                            Bedroom
+                        </option>
+
+                        <option value="Kitchen">
+                            Kitchen
+                        </option>
+
+                        <option value="Dining Room">
+                            Dining Room
+                        </option>
+
+                        <option value="Study Room">
+                            Study Room
+                        </option>
+
+                        <option value="Kids Room">
+                            Kids Room
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="home-style">
+                        Interior Style
+                    </label>
+
+                    <select
+                        id="home-style"
+                        name="style"
+                    >
+                        <option value="Modern">
+                            Modern
+                        </option>
+
+                        <option value="Minimalist">
+                            Minimalist
+                        </option>
+
+                        <option value="Traditional">
+                            Traditional
+                        </option>
+
+                        <option value="Contemporary">
+                            Contemporary
+                        </option>
+
+                        <option value="Luxury">
+                            Luxury
+                        </option>
+
+                        <option value="Bohemian">
+                            Bohemian
+                        </option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>Items Required</label>
+
+                    <div class="checkbox-grid">
+
+                        <label class="checkbox-item">
+                            <input
+                                type="checkbox"
+                                name="home-item"
+                                value="Sofa"
+                            >
+                            <span>Sofa</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input
+                                type="checkbox"
+                                name="home-item"
+                                value="Bed"
+                            >
+                            <span>Bed</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input
+                                type="checkbox"
+                                name="home-item"
+                                value="Table"
+                            >
+                            <span>Table</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input
+                                type="checkbox"
+                                name="home-item"
+                                value="Chair"
+                            >
+                            <span>Chair</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input
+                                type="checkbox"
+                                name="home-item"
+                                value="Lighting"
+                            >
+                            <span>Lighting</span>
+                        </label>
+
+                        <label class="checkbox-item">
+                            <input
+                                type="checkbox"
+                                name="home-item"
+                                value="Storage"
+                            >
+                            <span>Storage</span>
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+
+                    <label for="home-notes">
+                        Additional Requirements
+                    </label>
+
+                    <textarea
+                        id="home-notes"
+                        name="notes"
+                        rows="4"
+                        placeholder="Tell us about your room, colors, preferences or special requirements..."
+                    ></textarea>
+
+                </div>
+
+                <div
+                    id="home-message"
+                    class="message hidden"
+                ></div>
+
+                <button
+                    type="submit"
+                    id="home-submit"
+                    class="btn btn-primary btn-full"
+                >
+                    ✨ Generate AI Plan
+                </button>
+
+            </form>
+
+        </div>
+
+        <div
+            id="home-result"
+            class="result-card"
+        >
+
+            <div class="result-empty">
+
+                <div class="result-empty-icon">
+                    🏠
+                </div>
+
+                <h2>Your AI Plan</h2>
+
+                <p>
+                    Fill in your requirements and click
+                    "Generate AI Plan" to see recommendations.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+</section>
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function () {
+
+        const form =
+            document.getElementById("home-form");
+
+        const result =
+            document.getElementById("home-result");
+
+        const message =
+            document.getElementById("home-message");
+
+        const button =
+            document.getElementById("home-submit");
+
+        form.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                const budget =
+                    Number(
+                        document.getElementById(
+                            "home-budget"
+                        ).value
+                    );
+
+                const roomType =
+                    document.getElementById(
+                        "room-type"
+                    ).value;
+
+                const style =
+                    document.getElementById(
+                        "home-style"
+                    ).value;
+
+                const notes =
+                    document.getElementById(
+                        "home-notes"
+                    ).value;
+
+                if (
+                    !budget ||
+                    budget <= 0 ||
+                    !roomType
+                ) {
+
+                    showMessage(
+                        message,
+                        "Please enter a valid budget and select a room type.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+                const items = [];
+
+                document
+                    .querySelectorAll(
+                        'input[name="home-item"]:checked'
+                    )
+                    .forEach(
+                        function (checkbox) {
+
+                            items.push(
+                                checkbox.value
+                            );
+
+                        }
+                    );
+
+                const payload = {
+                    budget: budget,
+                    room_type: roomType,
+                    style: style,
+                    items: items,
+                    notes: notes
+                };
+
+                button.disabled = true;
+                button.textContent =
+                    "Generating Plan...";
+
+                result.innerHTML = `
+                    <div class="loading-box">
+                        <div class="spinner"></div>
+                        <h3>Creating your smart plan...</h3>
+                        <p>PocketSmart AI is analyzing your budget.</p>
+                    </div>
+                `;
+
+                try {
+
+                    const data =
+                        await apiRequest(
+                            "/generate-home",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify(
+                                        payload
+                                    )
+                            }
+                        );
+
+                    renderRecommendation(
+                        result,
+                        data
+                    );
+
+                    showMessage(
+                        message,
+                        "Your AI plan has been generated successfully!",
+                        "success"
+                    );
+
+                } catch (error) {
+
+                    const errorText =
+                        error?.message ||
+                        String(error);
+
+                    showMessage(
+                        message,
+                        errorText,
+                        "error"
+                    );
+
+                    result.innerHTML = `
+                        <div class="result-empty">
+                            <div class="result-empty-icon">⚠️</div>
+                            <h2>Unable to generate plan</h2>
+                            <p>${escapeHtml(errorText)}</p>
+                        </div>
+                    `;
+
+                } finally {
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "✨ Generate AI Plan";
+
+                }
+
+            }
+        );
+
+    }
+);
+
+function renderRecommendation(
+    container,
+    data
+) {
+
+    const result =
+        data.result || data;
+
+    let html = `
+
+        <div class="result-header">
+
+            <div>
+
+                <span class="result-label">
+                    AI Recommendation
+                </span>
+
+                <h2>
+                    Your Home Plan
+                </h2>
+
+            </div>
+
+            <span class="source-badge">
+                ${escapeHtml(
+                    result.source || "AI"
+                )}
+            </span>
+
+        </div>
+
+        <div class="summary-box">
+
+            <p>
+                ${escapeHtml(
+                    result.summary ||
+                    "Your personalized plan is ready."
+                )}
+            </p>
+
+        </div>
+
+        <div class="budget-summary">
+
+            <div>
+                <span>Budget</span>
+
+                <strong>
+                    ${formatCurrency(
+                        result.budget
+                    )}
+                </strong>
+            </div>
+
+            <div>
+                <span>Estimated Total</span>
+
+                <strong>
+                    ${formatCurrency(
+                        result.budget_used
+                    )}
+                </strong>
+            </div>
+
+        </div>
+
+        <h3 class="recommendation-title">
+            Recommendations
+        </h3>
+
+        <div class="recommendation-list">
+    `;
+
+    const recommendations =
+        result.recommendations || [];
+
+    recommendations.forEach(
+        function (item) {
+
+            html += `
+
+                <div class="recommendation-item">
+
+                    <div class="recommendation-icon">
+                        🏠
+                    </div>
+
+                    <div class="recommendation-content">
+
+                        <span class="recommendation-category">
+                            ${escapeHtml(
+                                item.category
+                            )}
+                        </span>
+
+                        <h4>
+                            ${escapeHtml(
+                                item.name
+                            )}
+                        </h4>
+
+                        <p>
+                            ${escapeHtml(
+                                item.reason
+                            )}
+                        </p>
+
+                    </div>
+
+                    <div class="recommendation-price">
+
+                        <strong>
+                            ${formatCurrency(
+                                item.estimated_price
+                            )}
+                        </strong>
+
+                        <a
+                            href="${item.search_url || "#"}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="shop-link"
+                        >
+                            Shop →
+                        </a>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+    );
+
+    html += `
+        </div>
+    `;
+
+    container.innerHTML = html;
+}
+
+function escapeHtml(value) {
+
+    return String(
+        value ?? ""
+    )
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+</script>
+
+{% endblock %}
